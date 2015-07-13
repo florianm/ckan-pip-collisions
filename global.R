@@ -67,7 +67,6 @@ parse_one_requirements_file <- function(fname){
 }
 
 
-
 #' List all requirements sorted alphabetically
 collate_dependencies <- function(){
   fn <- get_requirement_file_names()
@@ -80,4 +79,3 @@ cache_dependencies <- function(){
 }
 
 dependencies <- function(){read.csv("dependencies.txt")}
-
