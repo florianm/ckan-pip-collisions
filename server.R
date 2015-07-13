@@ -3,7 +3,7 @@ library(shiny)
 shinyServer(function(input, output) {
 
   # display 10 rows initially
-  output$ex1 <- renderDataTable(dependencies(), options = list(pageLength = 10))
+  output$ex1 <- renderDataTable(dependencies(), options = list(paging = FALSE))
 
 #   # -1 means no pagination; the 2nd element contains menu labels
 #   output$ex2 <- renderDataTable(iris, options = list(

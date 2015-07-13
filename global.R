@@ -1,5 +1,7 @@
 library(RCurl)
 library(bitops)
+library(plyr)
+library(reshape)
 
 #' Returns a data.frame of CKAN extensions
 #'
@@ -55,16 +57,26 @@ get_requirement_file_names <- function(){
   list.files(pattern='*requirements*\\.txt', recursive=TRUE)
 }
 
+parse_one_requirements_file <- function(fname){
+  try(lines <- readLines(fname))
+  if(!exists("lines")) lines <- "extensions not readable"
+  ename <- strsplit(fname,"/")[[1]][1]
+  x <- data.frame(cbind(library = lines, extension = ename),
+                  stringsAsFactors = F)
+  x
+}
+
+
+
 #' List all requirements sorted alphabetically
 collate_dependencies <- function(){
   fn <- get_requirement_file_names()
-  d <- sort(unlist(lapply(fn, readLines)))
-  deps <- d[grep("=", d)]
-  deps
+  d <- ldply(fn, parse_one_requirements_file)
+  d
 }
 
 cache_dependencies <- function(){
-  write.csv(collate_dependencies(), file="dependencies.txt")
+  write.csv(collate_dependencies(), file="dependencies.txt", row.names = F)
 }
 
 dependencies <- function(){read.csv("dependencies.txt")}

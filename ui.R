@@ -1,7 +1,7 @@
 library(shiny)
 
 shinyUI(navbarPage(
-  title = 'CKAN dependencies',
+  title = 'CKAN dependency explorer',
   tabPanel('Dependencies',     dataTableOutput('ex1'))
 #   tabPanel('Length menu',        dataTableOutput('ex2')),
 #   tabPanel('No pagination',      dataTableOutput('ex3')),
