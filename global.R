@@ -1,7 +1,8 @@
-library(RCurl)
 library(bitops)
+library(httr)
 library(plyr)
 library(reshape)
+library(RCurl)
 
 #' Returns a data.frame of CKAN extensions
 #'
@@ -15,48 +16,76 @@ get_extensions <- function(){
   ext
 }
 
-
-#' git pulls in a given folder
+#' Return a list of lists describing files matching "requirements".
 #'
-#' @param path A relative or absolute folder path
-git_pull <- function(path){
-  wd <- getwd()
-  setwd(path)
-  system(paste("git pull"))
-  setwd(wd)
+#' Because of rate limiting to github api calls, a normal user can only send
+#' 60 requests per hour. https://developer.github.com/v3/#rate-limiting
+#' At 271 extensions, this might take a while.
+#'
+#' Also, this returns only the first match and ignores the rest.
+#'
+#' Currently returns a list of lists, needs to access the content of all found
+#' files and return each line (plus extension name) in a data.frame
+get_requirements <- function(url){
+  reponame <- strsplit(url, "github.com/")[[1]][2]
+  get_url <- paste0("https://api.github.com/search/code?",
+                    "q=requirements+in:filename+extension:txt+repo:", reponame)
+  hdr =  add_headers(Accept = "application/vnd.github.v3.text-match+json")
+  res <- httr::GET(get_url, hdr)
+  stop_for_status(res)
+  cont <- content(res)
+  cont
 }
 
 
-#' git clone or pull a given url
-git_clone_or_pull <- function(url){
-  folder <- strsplit(u,"/")[[1]][5]
-  if(file.exists(folder)) {
-    git_pull(folder)
-  } else {
-    system(paste("git clone", url))
-  }
+#' Git clone a given url
+#'
+#' Clones a Git repository to a local subfolder, fails if folder exists.
+#'
+#' @param url The url to clone
+#' @return None
+git_clone <- function(url){
+  system(paste("git clone", url))
 }
 
-#' git pull all extensions
-pull_all_extensions <- function(){
-  lapply(dir(pattern="^ckanext*"), git_pull)
-}
+#' Remove local copies of extensions
+wipe_local_extensions <- function(){unlink(dir(pattern="^ckanext*"))}
 
+#' Refresh local extension repositories
+#'
+#' Removes all subdirectories beginning with "ckanext",
+#' then git clones a list of repo urls.
+#'
+#' @param urls A vector of urls
+#'
 #' git clone or pull a list of urls
-git_clone_or_pull_all_extensions <- function(urls){
-  lapply(urls, git_clone_or_pull)
+update_all_extensions <- function(urls){
+  wipe_local_extensions()
+  lapply(urls, git_clone)
 }
 
-#' Clone all registered extensions to local folders
+
+#' Updates local extensions to their current latest status
+#'
+#' Uses get_extensions() to fetch the latest list of registered CKAN extensions,
+#' removes all local copies of extensions, downloads all registered extensions.
+#' This function runs for a while (>60 sec), mind browser timeouts.
 refresh_local_extensions <- function(){
-  git_clone_or_pull_all_extensions(get_extensions()$url)
+  update_all_extensions(get_extensions()$url)
 }
 
-#' Return a list of pip requirements file names
+#' Return a list of pip requirements file names (local copies)
+#'
+#' Requires refresh_local_extensions() to have run.
+#'
+#' @return a list of file names
 get_requirement_file_names <- function(){
   list.files(pattern='*requirements*\\.txt', recursive=TRUE)
 }
 
+#' Returns a data.frame (library, extension name) from a requirements file
+#'
+#' @param
 parse_one_requirements_file <- function(fname){
   try(lines <- readLines(fname))
   if(!exists("lines")) lines <- "extensions not readable"
@@ -69,8 +98,8 @@ parse_one_requirements_file <- function(fname){
 
 #' List all requirements sorted alphabetically
 collate_dependencies <- function(){
-  fn <- get_requirement_file_names()
-  d <- ldply(fn, parse_one_requirements_file)
+  d <- ldply(get_requirement_file_names(),
+             parse_one_requirements_file)
   d
 }
 
