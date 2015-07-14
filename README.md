@@ -49,3 +49,16 @@ source("global.R")
 remove_local_extensions()
 ```
 Otherwise, shinyapps will try to upload them all and crash with a timeout.
+
+## Current issues
+The following repos lack EOL in their requirements:
+
+```
+  incomplete final line found on 'ckanext-agls/requirements.txt'
+  incomplete final line found on 'ckanext-dev/requirements.txt'
+  incomplete final line found on 'ckanext-nhm/requirements.txt'
+  incomplete final line found on 'ckanext-sdrdltheme/requirements.txt'
+  incomplete final line found on 'ckanext-wotkit/pip-requirements.txt'
+  incomplete final line found on 'ckanext-ytp-main/requirements.txt'
+  incomplete final line found on 'ckanext-ytp-tasks/requirements.txt'
+```

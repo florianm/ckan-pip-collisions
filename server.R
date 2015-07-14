@@ -9,6 +9,19 @@ shinyServer(function(input, output) {
                                   lengthMenu = list(c(15, 100, -1),
                                                     c('15', '100', 'All'))
                                   ))
+  # output object: download PDF
+  output$downloadCSV <- downloadHandler(
+    filename = "dependencies.csv",
+    content = function(file) {write.csv(dependencies(), file)},
+    contentType = "text/csv"
+  )
+
+  output$save2disk <- renderUI({
+    wellPanel(
+      h4("Save to disk"),
+      downloadButton("downloadCSV", "Download CSV"),
+    )
+  })
 
   # TODO: add button "refresh local extension repos"
   # TODO: add button "download list as CSV"

@@ -106,7 +106,7 @@ collate_dependencies <- function(){
 }
 
 cache_dependencies <- function(){
-  write.csv(collate_dependencies(), file="dependencies.txt", row.names = F)
+  write.csv(collate_dependencies(), file="dependencies.csv", row.names = F)
 }
 
-dependencies <- function(){read.csv("dependencies.txt")}
+dependencies <- function(){read.csv("dependencies.csv")}
