@@ -49,7 +49,9 @@ git_clone <- function(url){
 }
 
 #' Remove local copies of extensions
-wipe_local_extensions <- function(){unlink(dir(pattern="^ckanext*"))}
+wipe_em_all <- function(){
+  lapply(dir(pattern="^ckanext*"), unlink, recursive=T, force=T)
+}
 
 #' Refresh local extension repositories
 #'
@@ -59,8 +61,8 @@ wipe_local_extensions <- function(){unlink(dir(pattern="^ckanext*"))}
 #' @param urls A vector of urls
 #'
 #' git clone or pull a list of urls
-update_all_extensions <- function(urls){
-  wipe_local_extensions()
+git_em_all() <- function(urls){
+  wipe_em_all()
   lapply(urls, git_clone)
 }
 

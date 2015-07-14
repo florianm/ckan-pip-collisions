@@ -34,14 +34,18 @@ more appropriate.
 
 To update the list, `git clone https://github.com/florianm/ckan-pip-collisions.git` 
 and run in R:
-```
+```{R}
 source("global.R")
-refresh_local_extensions()
+git_em_all()
 ```
 
 The list is under version control, the extensions are not.
 
 ## Hosting the app on shinyapps.io
 Before uploading the app to shinyapp.io, it is recommended to remove the local
-repositories with `wipe_local_extensions()`. Otherwise, shinyapps will try to 
-upload them all and crash with a timeout.
+repositories with 
+```{R}
+source("global.R")
+wipe_em_all()
+```
+Otherwise, shinyapps will try to upload them all and crash with a timeout.
