@@ -49,7 +49,7 @@ git_clone <- function(url){
 }
 
 #' Remove local copies of extensions
-wipe_em_all <- function(){
+remove_local_extensions <- function(){
   lapply(dir(pattern="^ckanext*"), unlink, recursive=T, force=T)
 }
 
@@ -62,7 +62,7 @@ wipe_em_all <- function(){
 #'
 #' git clone or pull a list of urls
 git_em_all <- function(urls){
-  wipe_em_all()
+  remove_local_extensions()
   lapply(urls, git_clone)
 }
 
@@ -73,7 +73,7 @@ git_em_all <- function(urls){
 #' removes all local copies of extensions, downloads all registered extensions.
 #' This function runs for a while (>60 sec), mind browser timeouts.
 refresh_local_extensions <- function(){
-  update_all_extensions(get_extensions()$url)
+  git_em_all(get_extensions()$url)
 }
 
 #' Return a list of pip requirements file names (local copies)
