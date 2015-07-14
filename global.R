@@ -61,7 +61,7 @@ wipe_em_all <- function(){
 #' @param urls A vector of urls
 #'
 #' git clone or pull a list of urls
-git_em_all() <- function(urls){
+git_em_all <- function(urls){
   wipe_em_all()
   lapply(urls, git_clone)
 }
