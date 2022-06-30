@@ -3,6 +3,7 @@ library(httr)
 library(plyr)
 library(reshape)
 library(RCurl)
+library(git2r)
 
 #' Returns a data.frame of CKAN extensions
 #'
@@ -33,8 +34,7 @@ get_requirements <- function(url){
   hdr =  add_headers(Accept = "application/vnd.github.v3.text-match+json")
   res <- httr::GET(get_url, hdr)
   stop_for_status(res)
-  cont <- content(res)
-  cont
+  content(res)
 }
 
 
@@ -45,7 +45,9 @@ get_requirements <- function(url){
 #' @param url The url to clone
 #' @return None
 git_clone <- function(url){
-  system(paste("git clone", url))
+  # system(paste("git clone --depth 1", url))
+  lp <- here::here(basename(url))
+  try(git2r::clone(url, local_path = lp, credentials = git2r::cred_token()))
 }
 
 #' Remove local copies of extensions
@@ -62,7 +64,7 @@ remove_local_extensions <- function(){
 #'
 #' git clone or pull a list of urls
 git_em_all <- function(urls){
-  remove_local_extensions()
+  # remove_local_extensions()
   lapply(urls, git_clone)
 }
 
@@ -110,3 +112,4 @@ cache_dependencies <- function(){
 }
 
 dependencies <- function(){read.csv("dependencies.csv")}
+
